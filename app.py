@@ -1,0 +1,141 @@
+import streamlit as st
+import openai
+import datetime
+
+# Configuração da API da OpenAI
+openai.api_key = st.secrets["OPENAI_API_KEY"]
+
+st.title("Gerador de Roteiros de Vídeo Automatizado")
+
+# Estruturas por tipo de produto
+estruturas_por_tipo = {
+    "Headset / Fone de Ouvido": [
+        "Unboxing",
+        "Design e conforto",
+        "Conectividade e compatibilidade",
+        "Qualidade de som",
+        "Cancelamento de ruído (ANC)",
+        "Microfone (teste rápido)",
+        "Bateria e autonomia",
+        "Experiência de uso (músicas, chamadas, jogos)"
+    ],
+    "Mouse": [
+        "Unboxing",
+        "Design e ergonomia",
+        "Sensor e DPI",
+        "Conectividade",
+        "Software e personalização",
+        "Experiência em jogos ou uso geral",
+        "Bateria (se for wireless)"
+    ],
+    "Teclado": [
+        "Unboxing",
+        "Layout e tipo de switch",
+        "Iluminação (RGB)",
+        "Conectividade",
+        "Software (se tiver)",
+        "Experiência de digitação ou jogos"
+    ],
+    "Monitor": [
+        "Unboxing e montagem",
+        "Design e conexões",
+        "Tela (resolução, tipo de painel, taxa de atualização)",
+        "Qualidade de imagem (brilho, contraste, cores)",
+        "Uso em jogos / trabalho"
+    ],
+    "Smartphone": [
+        "Unboxing",
+        "Design e tela",
+        "Sistema e desempenho",
+        "Câmeras (teste rápido)",
+        "Bateria e carregamento",
+        "Experiência geral"
+    ],
+    "Notebook": [
+        "Unboxing",
+        "Design e tela",
+        "Teclado, portas e conectividade",
+        "Desempenho e temperatura",
+        "Bateria",
+        "Experiência de uso geral"
+    ]
+}
+
+# Formulário com os campos definidos pelo usuário
+with st.form("form_roteiro"):
+    titulo_video = st.text_input("Título do vídeo")
+    nome_produto = st.text_input("Nome do produto")
+    tipo_produto = st.selectbox("Tipo de produto", list(estruturas_por_tipo.keys()))
+    data_compra = st.date_input("Data da compra", value=datetime.date.today())
+    data_gravacao = st.date_input("Data da gravação", value=datetime.date.today())
+    publico_alvo = st.text_input("Público-alvo do vídeo")
+    valeu_a_pena = st.radio("O produto valeu a pena?", ["Sim", "Não", "Em partes"])
+
+    pontos_positivos = st.text_area("Pontos positivos")
+    pontos_negativos = st.text_area("Pontos negativos")
+
+    descricao_fabricante = st.text_area("Descrição do produto (fabricante)")
+    transcricao_youtube = st.text_area("Transcrição de outro vídeo sobre o produto")
+    ideias_gerais = st.text_area("Ideias gerais para o vídeo")
+
+    st.markdown("**Seções que você quer incluir no roteiro:**")
+    secoes_base = ["Introdução"] + estruturas_por_tipo[tipo_produto] + ["Pontos positivos", "Pontos negativos", "Vale a pena?", "Conclusão com CTA"]
+    secoes_incluidas = [st.checkbox(secao, value=True) for secao in secoes_base]
+    secoes_escolhidas = [secao for secao, incluir in zip(secoes_base, secoes_incluidas) if incluir]
+
+    gerar = st.form_submit_button("Gerar Roteiro")
+
+if gerar:
+    with st.spinner("Gerando roteiro..."):
+        secoes_texto = "\n".join([f"- {sec}" for sec in secoes_escolhidas])
+
+        prompt = f"""
+        Crie um roteiro em formato de tópicos para um vídeo de YouTube sobre o produto "{nome_produto}". O roteiro deve funcionar como um lembrete dos pontos que o criador de conteúdo precisa comentar, e não como um script palavra por palavra.
+
+        Informações adicionais:
+        - Título do vídeo: {titulo_video}
+        - Tipo de produto: {tipo_produto}
+        - Data da compra: {data_compra}
+        - Data da gravação: {data_gravacao}
+        - Público-alvo: {publico_alvo}
+        - Valeu a pena?: {valeu_a_pena}
+
+        Pontos positivos:
+        {pontos_positivos}
+
+        Pontos negativos:
+        {pontos_negativos}
+
+        Descrição do fabricante:
+        {descricao_fabricante}
+
+        Transcrição de outro criador:
+        {transcricao_youtube}
+
+        Ideias gerais:
+        {ideias_gerais}
+
+        As seções do roteiro devem ser:
+        {secoes_texto}
+
+        Seja direto e claro em cada tópico.
+        """
+
+        try:
+            resposta = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "Você é um especialista em criar roteiros para vídeos de tecnologia e produtos."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7
+            )
+
+            roteiro = resposta.choices[0].message.content
+
+            st.subheader("Roteiro Gerado (em tópicos)")
+            st.code(roteiro, language="markdown")
+            st.caption("Copie o texto acima para seu editor ou roteiro.")
+
+        except Exception as e:
+            st.error(f"Erro ao gerar o roteiro: {e}")
