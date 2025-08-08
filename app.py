@@ -61,13 +61,17 @@ estruturas_por_tipo = {
     ]
 }
 
-# Formulário com os campos definidos pelo usuário
+# Campos principais dentro do form (exceto as seções)
 with st.form("form_roteiro"):
     titulo_video = st.text_input("Título do vídeo")
     nome_produto = st.text_input("Nome do produto")
     tipo_produto = st.selectbox("Tipo de produto", list(estruturas_por_tipo.keys()))
     data_compra = st.date_input("Data da compra", value=datetime.date.today())
-    data_gravacao = st.date_input("Data da gravação", value=datetime.date.today())
+    
+    # Substituindo Data da gravação por Valor da compra e Onde comprou
+    valor_compra = st.text_input("Valor da compra")
+    onde_comprou = st.text_input("Onde comprou")
+    
     publico_alvo = st.text_input("Público-alvo do vídeo")
     valeu_a_pena = st.radio("O produto valeu a pena?", ["Sim", "Não", "Em partes"])
 
@@ -78,12 +82,13 @@ with st.form("form_roteiro"):
     transcricao_youtube = st.text_area("Transcrição de outro vídeo sobre o produto")
     ideias_gerais = st.text_area("Ideias gerais para o vídeo")
 
-    st.markdown("**Seções que você quer incluir no roteiro:**")
-    secoes_base = ["Introdução"] + estruturas_por_tipo[tipo_produto] + ["Pontos positivos", "Pontos negativos", "Vale a pena?", "Conclusão com CTA"]
-    secoes_incluidas = [st.checkbox(secao, value=True) for secao in secoes_base]
-    secoes_escolhidas = [secao for secao, incluir in zip(secoes_base, secoes_incluidas) if incluir]
-
     gerar = st.form_submit_button("Gerar Roteiro")
+
+# Seções de tópicos - fora do form para atualização dinâmica
+st.markdown("**Seções que você quer incluir no roteiro:**")
+secoes_base = ["Introdução"] + estruturas_por_tipo.get(tipo_produto, []) + ["Pontos positivos", "Pontos negativos", "Vale a pena?", "Conclusão com CTA"]
+secoes_incluidas = [st.checkbox(secao, value=True, key=secao) for secao in secoes_base]
+secoes_escolhidas = [secao for secao, incluir in zip(secoes_base, secoes_incluidas) if incluir]
 
 if gerar:
     with st.spinner("Gerando roteiro..."):
@@ -96,7 +101,8 @@ if gerar:
         - Título do vídeo: {titulo_video}
         - Tipo de produto: {tipo_produto}
         - Data da compra: {data_compra}
-        - Data da gravação: {data_gravacao}
+        - Valor da compra: {valor_compra}
+        - Onde comprou: {onde_comprou}
         - Público-alvo: {publico_alvo}
         - Valeu a pena?: {valeu_a_pena}
 
