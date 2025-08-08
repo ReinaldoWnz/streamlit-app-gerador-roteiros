@@ -152,5 +152,3 @@ Compare dois produtos com base nos roteiros abaixo, criando um novo roteiro de v
 
 Crie um roteiro comparativo para vídeo do YouTube, com linguagem natural, tópicos diretos e lembretes do que o criador deve comentar.
 """
-
-st.subheader("🧠 Prompt Gerado")
