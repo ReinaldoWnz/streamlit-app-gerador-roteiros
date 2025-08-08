@@ -69,7 +69,6 @@ if tipo_video == "Unboxing / Review":
     valor_compra = st.text_input("Valor da compra")
     onde_comprou = st.text_input("Onde comprou?")
     data_compra = st.date_input("Data da compra", value=datetime.date.today())
-    publico_alvo = st.text_input("Público-alvo do vídeo")
     valeu_a_pena = st.radio("O produto valeu a pena?", ["Sim", "Não", "Em partes"])
 
     pontos_positivos = st.text_area("Pontos positivos")
@@ -99,7 +98,6 @@ O roteiro deve servir como lembrete dos pontos que o criador de conteúdo deve c
 - Valor da compra: {valor_compra}
 - Onde comprou: {onde_comprou}
 - Data da compra: {data_compra}
-- Público-alvo: {publico_alvo}
 - Valeu a pena?: {valeu_a_pena}
 
 ### Pontos positivos:
