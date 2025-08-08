@@ -157,7 +157,7 @@ Crie um roteiro comparativo para vídeo do YouTube, com linguagem natural, tópi
 st.subheader("🧠 Prompt Gerado")
 
 # Caixa de texto com o prompt (readonly)
-st.text_area("📋 Copie ou use o botão abaixo:", value=roteiro, height=400)
+st.text_area("📋 Copie ou use o botão abaixo:", value=prompt, height=400)
 
 components.html(f"""
     <button onclick="navigator.clipboard.writeText(`{roteiro}`)" 
