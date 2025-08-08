@@ -142,15 +142,14 @@ def gerar_roteiro_unboxing():
             """
 
             try:
-                resposta = openai.ChatCompletion.create(
+                resposta = openai.chat.completions.create(
                     model="gpt-4",
                     messages=[
-                        {"role": "system", "content": "Você é um especialista em criar roteiros para vídeos de tecnologia e produtos."},
+                        {"role": "system", "content": "..."},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.7
                 )
-
                 roteiro = resposta.choices[0].message.content
 
                 st.subheader("Roteiro Gerado (em tópicos)")
