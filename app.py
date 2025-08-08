@@ -1,6 +1,6 @@
 import streamlit as st
 import datetime
-import pyperclip
+import streamlit.components.v1 as components
 
 st.title("📝 Gerador de Prompt para Roteiros de Vídeo")
 
@@ -154,18 +154,15 @@ Compare dois produtos com base nos roteiros abaixo, criando um novo roteiro de v
 Crie um roteiro comparativo para vídeo do YouTube, com linguagem natural, tópicos diretos e lembretes do que o criador deve comentar.
 """
 
-        st.subheader("🧠 Prompt Gerado")
+st.subheader("🧠 Prompt Gerado")
 
-# Mostra o prompt
-st.code(prompt, language="markdown", line_numbers=False)
+# Caixa de texto com o prompt (readonly)
+st.text_area("📋 Copie ou use o botão abaixo:", value=prompt, height=400)
 
-# Botão para copiar (usando workaround com pyperclip)
-if st.button("📋 Copiar para a área de transferência"):
-    try:
-        pyperclip.copy(prompt)
-        st.success("Prompt copiado com sucesso!")
-    except Exception:
-        st.warning("Não foi possível copiar automaticamente. Copie manualmente.")
-
-# Botão alternativo para baixar o prompt
-st.download_button("⬇️ Baixar como .txt", prompt, file_name="roteiro_prompt.txt")
+# Botão de copiar com JavaScript
+components.html(f"""
+    <button onclick="navigator.clipboard.writeText(`{prompt}`)" 
+            style="padding: 10px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        📎 Copiar para a área de transferência
+    </button>
+""", height=40)
