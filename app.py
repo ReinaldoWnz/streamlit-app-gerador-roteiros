@@ -160,7 +160,7 @@ st.subheader("🧠 Prompt Gerado")
 st.text_area("📋 Copie ou use o botão abaixo:", value=prompt, height=400)
 
 components.html(f"""
-    <button onclick="navigator.clipboard.writeText(`{roteiro}`)" 
+    <button onclick="navigator.clipboard.writeText(`{prompt}`)" 
         style="padding: 10px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
         📎 Copiar para a área de transferência
     </button>
