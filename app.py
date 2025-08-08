@@ -181,15 +181,15 @@ def gerar_roteiro_comparacao():
             """
 
             try:
-                resposta = openai.ChatCompletion.create(
+                resposta = openai.chat.completions.create(
                     model="gpt-4",
                     messages=[
-                        {"role": "system", "content": "Você é um especialista em roteiros para vídeos comparativos de tecnologia."},
+                        {"role": "system", "content": "Você é um especialista em roteiros..."},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.7
                 )
-
+                
                 roteiro = resposta.choices[0].message.content
 
                 st.subheader("Roteiro Comparativo Gerado (em tópicos)")
