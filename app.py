@@ -2,12 +2,10 @@ import streamlit as st
 import openai
 import datetime
 
-# Configuração da API da OpenAI
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 st.title("Gerador de Roteiros de Vídeo Automatizado")
 
-# Estruturas por tipo de produto
 estruturas_por_tipo = {
     "Headset / Fone de Ouvido": [
         "Unboxing",
@@ -61,17 +59,30 @@ estruturas_por_tipo = {
     ]
 }
 
-# Campos principais dentro do form (exceto as seções)
+# Iniciar sessão do Streamlit para controle do estado
+if 'tipo_produto_anterior' not in st.session_state:
+    st.session_state.tipo_produto_anterior = None
+
+# Entrada do tipo de produto
+tipo_produto = st.selectbox("Tipo de produto", list(estruturas_por_tipo.keys()))
+
+# Detectar mudança no tipo de produto e resetar checkboxes
+if st.session_state.tipo_produto_anterior != tipo_produto:
+    st.session_state.tipo_produto_anterior = tipo_produto
+    
+    # Resetar estado dos checkboxes das seções
+    secoes_base = ["Introdução"] + estruturas_por_tipo[tipo_produto] + ["Pontos positivos", "Pontos negativos", "Vale a pena?", "Conclusão com CTA"]
+    for secao in secoes_base:
+        st.session_state[f"secao_{secao}"] = True
+
+# Form principal
 with st.form("form_roteiro"):
     titulo_video = st.text_input("Título do vídeo")
     nome_produto = st.text_input("Nome do produto")
-    tipo_produto = st.selectbox("Tipo de produto", list(estruturas_por_tipo.keys()))
+    # tipo_produto já selecionado acima
     data_compra = st.date_input("Data da compra", value=datetime.date.today())
-    
-    # Substituindo Data da gravação por Valor da compra e Onde comprou
     valor_compra = st.text_input("Valor da compra")
     onde_comprou = st.text_input("Onde comprou")
-    
     publico_alvo = st.text_input("Público-alvo do vídeo")
     valeu_a_pena = st.radio("O produto valeu a pena?", ["Sim", "Não", "Em partes"])
 
@@ -84,12 +95,18 @@ with st.form("form_roteiro"):
 
     gerar = st.form_submit_button("Gerar Roteiro")
 
-# Seções de tópicos - fora do form para atualização dinâmica
+# Mostrar checkboxes dinâmicos com estado controlado
 st.markdown("**Seções que você quer incluir no roteiro:**")
-secoes_base = ["Introdução"] + estruturas_por_tipo.get(tipo_produto, []) + ["Pontos positivos", "Pontos negativos", "Vale a pena?", "Conclusão com CTA"]
-secoes_incluidas = [st.checkbox(secao, value=True, key=secao) for secao in secoes_base]
-secoes_escolhidas = [secao for secao, incluir in zip(secoes_base, secoes_incluidas) if incluir]
+secoes_base = ["Introdução"] + estruturas_por_tipo[tipo_produto] + ["Pontos positivos", "Pontos negativos", "Vale a pena?", "Conclusão com CTA"]
 
+secoes_escolhidas = []
+for secao in secoes_base:
+    checked = st.session_state.get(f"secao_{secao}", True)
+    incluir = st.checkbox(secao, value=checked, key=f"secao_{secao}")
+    if incluir:
+        secoes_escolhidas.append(secao)
+
+# Geração do roteiro
 if gerar:
     with st.spinner("Gerando roteiro..."):
         secoes_texto = "\n".join([f"- {sec}" for sec in secoes_escolhidas])
