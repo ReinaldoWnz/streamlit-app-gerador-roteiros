@@ -6,6 +6,10 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 st.title("Gerador de Roteiros de Vídeo Automatizado")
 
+# Tipos de vídeo
+tipo_video = st.selectbox("Tipo do vídeo", ["Unboxing / Review", "Comparação de produtos"])
+
+# Estruturas por tipo de produto
 estruturas_por_tipo = {
     "Headset / Fone de Ouvido": [
         "Unboxing",
@@ -59,106 +63,144 @@ estruturas_por_tipo = {
     ]
 }
 
-# Iniciar sessão do Streamlit para controle do estado
-if 'tipo_produto_anterior' not in st.session_state:
-    st.session_state.tipo_produto_anterior = None
+def gerar_roteiro_unboxing():
+    # Controle de estado para tipo de produto (para atualizar seções)
+    if 'tipo_produto_anterior' not in st.session_state:
+        st.session_state.tipo_produto_anterior = None
 
-# Entrada do tipo de produto
-tipo_produto = st.selectbox("Tipo de produto", list(estruturas_por_tipo.keys()))
+    tipo_produto = st.selectbox("Tipo de produto", list(estruturas_por_tipo.keys()))
 
-# Detectar mudança no tipo de produto e resetar checkboxes
-if st.session_state.tipo_produto_anterior != tipo_produto:
-    st.session_state.tipo_produto_anterior = tipo_produto
-    
-    # Resetar estado dos checkboxes das seções
+    if st.session_state.tipo_produto_anterior != tipo_produto:
+        st.session_state.tipo_produto_anterior = tipo_produto
+        secoes_base = ["Introdução"] + estruturas_por_tipo[tipo_produto] + ["Pontos positivos", "Pontos negativos", "Vale a pena?", "Conclusão com CTA"]
+        for secao in secoes_base:
+            st.session_state[f"secao_{secao}"] = True
+
+    with st.form("form_roteiro"):
+        titulo_video = st.text_input("Título do vídeo")
+        nome_produto = st.text_input("Nome do produto")
+        data_compra = st.date_input("Data da compra", value=datetime.date.today())
+        valor_compra = st.text_input("Valor da compra")
+        onde_comprou = st.text_input("Onde comprou")
+        publico_alvo = st.text_input("Público-alvo do vídeo")
+        valeu_a_pena = st.radio("O produto valeu a pena?", ["Sim", "Não", "Em partes"])
+
+        pontos_positivos = st.text_area("Pontos positivos")
+        pontos_negativos = st.text_area("Pontos negativos")
+
+        descricao_fabricante = st.text_area("Descrição do produto (fabricante)")
+        transcricao_youtube = st.text_area("Transcrição de outro vídeo sobre o produto")
+        ideias_gerais = st.text_area("Ideias gerais para o vídeo")
+
+        gerar = st.form_submit_button("Gerar Roteiro")
+
+    st.markdown("**Seções que você quer incluir no roteiro:**")
     secoes_base = ["Introdução"] + estruturas_por_tipo[tipo_produto] + ["Pontos positivos", "Pontos negativos", "Vale a pena?", "Conclusão com CTA"]
+
+    secoes_escolhidas = []
     for secao in secoes_base:
-        st.session_state[f"secao_{secao}"] = True
+        checked = st.session_state.get(f"secao_{secao}", True)
+        incluir = st.checkbox(secao, value=checked, key=f"secao_{secao}")
+        if incluir:
+            secoes_escolhidas.append(secao)
 
-# Form principal
-with st.form("form_roteiro"):
-    titulo_video = st.text_input("Título do vídeo")
-    nome_produto = st.text_input("Nome do produto")
-    # tipo_produto já selecionado acima
-    data_compra = st.date_input("Data da compra", value=datetime.date.today())
-    valor_compra = st.text_input("Valor da compra")
-    onde_comprou = st.text_input("Onde comprou")
-    publico_alvo = st.text_input("Público-alvo do vídeo")
-    valeu_a_pena = st.radio("O produto valeu a pena?", ["Sim", "Não", "Em partes"])
+    if gerar:
+        with st.spinner("Gerando roteiro..."):
+            secoes_texto = "\n".join([f"- {sec}" for sec in secoes_escolhidas])
 
-    pontos_positivos = st.text_area("Pontos positivos")
-    pontos_negativos = st.text_area("Pontos negativos")
+            prompt = f"""
+            Crie um roteiro em formato de tópicos para um vídeo de YouTube sobre o produto "{nome_produto}". O roteiro deve funcionar como um lembrete dos pontos que o criador de conteúdo precisa comentar, e não como um script palavra por palavra.
 
-    descricao_fabricante = st.text_area("Descrição do produto (fabricante)")
-    transcricao_youtube = st.text_area("Transcrição de outro vídeo sobre o produto")
-    ideias_gerais = st.text_area("Ideias gerais para o vídeo")
+            Informações adicionais:
+            - Título do vídeo: {titulo_video}
+            - Tipo de produto: {tipo_produto}
+            - Data da compra: {data_compra}
+            - Valor da compra: {valor_compra}
+            - Onde comprou: {onde_comprou}
+            - Público-alvo: {publico_alvo}
+            - Valeu a pena?: {valeu_a_pena}
 
-    gerar = st.form_submit_button("Gerar Roteiro")
+            Pontos positivos:
+            {pontos_positivos}
 
-# Mostrar checkboxes dinâmicos com estado controlado
-st.markdown("**Seções que você quer incluir no roteiro:**")
-secoes_base = ["Introdução"] + estruturas_por_tipo[tipo_produto] + ["Pontos positivos", "Pontos negativos", "Vale a pena?", "Conclusão com CTA"]
+            Pontos negativos:
+            {pontos_negativos}
 
-secoes_escolhidas = []
-for secao in secoes_base:
-    checked = st.session_state.get(f"secao_{secao}", True)
-    incluir = st.checkbox(secao, value=checked, key=f"secao_{secao}")
-    if incluir:
-        secoes_escolhidas.append(secao)
+            Descrição do fabricante:
+            {descricao_fabricante}
 
-# Geração do roteiro
-if gerar:
-    with st.spinner("Gerando roteiro..."):
-        secoes_texto = "\n".join([f"- {sec}" for sec in secoes_escolhidas])
+            Transcrição de outro criador:
+            {transcricao_youtube}
 
-        prompt = f"""
-        Crie um roteiro em formato de tópicos para um vídeo de YouTube sobre o produto "{nome_produto}". O roteiro deve funcionar como um lembrete dos pontos que o criador de conteúdo precisa comentar, e não como um script palavra por palavra.
+            Ideias gerais:
+            {ideias_gerais}
 
-        Informações adicionais:
-        - Título do vídeo: {titulo_video}
-        - Tipo de produto: {tipo_produto}
-        - Data da compra: {data_compra}
-        - Valor da compra: {valor_compra}
-        - Onde comprou: {onde_comprou}
-        - Público-alvo: {publico_alvo}
-        - Valeu a pena?: {valeu_a_pena}
+            As seções do roteiro devem ser:
+            {secoes_texto}
 
-        Pontos positivos:
-        {pontos_positivos}
+            Seja direto e claro em cada tópico.
+            """
 
-        Pontos negativos:
-        {pontos_negativos}
+            try:
+                resposta = openai.ChatCompletion.create(
+                    model="gpt-4",
+                    messages=[
+                        {"role": "system", "content": "Você é um especialista em criar roteiros para vídeos de tecnologia e produtos."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.7
+                )
 
-        Descrição do fabricante:
-        {descricao_fabricante}
+                roteiro = resposta.choices[0].message.content
 
-        Transcrição de outro criador:
-        {transcricao_youtube}
+                st.subheader("Roteiro Gerado (em tópicos)")
+                st.code(roteiro, language="markdown")
+                st.caption("Copie o texto acima para seu editor ou roteiro.")
 
-        Ideias gerais:
-        {ideias_gerais}
+            except Exception as e:
+                st.error(f"Erro ao gerar o roteiro: {e}")
 
-        As seções do roteiro devem ser:
-        {secoes_texto}
+def gerar_roteiro_comparacao():
+    with st.form("form_comparacao"):
+        roteiro_1 = st.text_area("Roteiro do Produto 1")
+        roteiro_2 = st.text_area("Roteiro do Produto 2")
+        gerar = st.form_submit_button("Gerar Roteiro Comparativo")
 
-        Seja direto e claro em cada tópico.
-        """
+    if gerar:
+        with st.spinner("Gerando roteiro comparativo..."):
+            prompt = f"""
+            Você é um especialista em criar roteiros para vídeos de comparação de produtos. Abaixo estão dois roteiros de produtos que serão comparados:
 
-        try:
-            resposta = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "Você é um especialista em criar roteiros para vídeos de tecnologia e produtos."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7
-            )
+            Produto 1:
+            {roteiro_1}
 
-            roteiro = resposta.choices[0].message.content
+            Produto 2:
+            {roteiro_2}
 
-            st.subheader("Roteiro Gerado (em tópicos)")
-            st.code(roteiro, language="markdown")
-            st.caption("Copie o texto acima para seu editor ou roteiro.")
+            Crie um roteiro comparativo em formato de tópicos para um vídeo no YouTube, destacando as diferenças, pontos fortes e fracos de cada produto, e uma conclusão indicando qual produto vale mais a pena. Seja direto e claro em cada ponto.
+            """
 
-        except Exception as e:
-            st.error(f"Erro ao gerar o roteiro: {e}")
+            try:
+                resposta = openai.ChatCompletion.create(
+                    model="gpt-4",
+                    messages=[
+                        {"role": "system", "content": "Você é um especialista em roteiros para vídeos comparativos de tecnologia."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.7
+                )
+
+                roteiro = resposta.choices[0].message.content
+
+                st.subheader("Roteiro Comparativo Gerado (em tópicos)")
+                st.code(roteiro, language="markdown")
+                st.caption("Copie o texto acima para seu editor ou roteiro.")
+
+            except Exception as e:
+                st.error(f"Erro ao gerar o roteiro: {e}")
+
+# Mostrar formulário conforme tipo do vídeo
+if tipo_video == "Unboxing / Review":
+    gerar_roteiro_unboxing()
+elif tipo_video == "Comparação de produtos":
+    gerar_roteiro_comparacao()
