@@ -143,7 +143,7 @@ def gerar_roteiro_unboxing():
 
             try:
                 resposta = openai.chat.completions.create(
-                    model="gpt-4",
+                    model="gpt-3.5-turbo",
                     messages=[
                         {"role": "system", "content": "..."},
                         {"role": "user", "content": prompt}
