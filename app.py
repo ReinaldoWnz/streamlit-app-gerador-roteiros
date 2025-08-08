@@ -157,12 +157,11 @@ Crie um roteiro comparativo para vídeo do YouTube, com linguagem natural, tópi
 st.subheader("🧠 Prompt Gerado")
 
 # Caixa de texto com o prompt (readonly)
-st.text_area("📋 Copie ou use o botão abaixo:", value=prompt, height=400)
+st.text_area("📋 Copie ou use o botão abaixo:", value=roteiro, height=400)
 
-# Botão de copiar com JavaScript
 components.html(f"""
-    <button onclick="navigator.clipboard.writeText(`{prompt}`)" 
-            style="padding: 10px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+    <button onclick="navigator.clipboard.writeText(`{roteiro}`)" 
+        style="padding: 10px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
         📎 Copiar para a área de transferência
     </button>
 """, height=40)
