@@ -57,6 +57,17 @@ estruturas_por_tipo = {
         "Desempenho e temperatura",
         "Bateria",
         "Experiência de uso geral"
+    ],
+    "Smartwatch": [
+        "Unboxing",
+        "Design e conforto",
+        "Tela (tipo, brilho, tamanho)",
+        "Sensores e funcionalidades (batimentos, GPS, etc.)",
+        "Sistema operacional e apps disponíveis",
+        "Bateria e autonomia",
+        "Conectividade (Bluetooth, Wi-Fi)",
+        "Experiência de uso (notificações, esportes, saúde)",
+        "Pontos positivos e negativos"
     ]
 }
 
