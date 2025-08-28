@@ -1,85 +1,17 @@
 import streamlit as st
-import datetime
 
 st.title("📝 Gerador de Prompt para Roteiros de Vídeo")
 
 # Tipo do vídeo
 tipo_video = st.selectbox("Tipo do vídeo", ["Unboxing / Review", "Comparação de produtos"])
 
-# Estrutura de tópicos por tipo de produto
-estruturas_por_tipo = {
-    "Headset / Fone de Ouvido": [
-        "Unboxing",
-        "Design e conforto",
-        "Conectividade e compatibilidade",
-        "Qualidade de som",
-        "Cancelamento de ruído (ANC)",
-        "Microfone (teste rápido)",
-        "Bateria e autonomia",
-        "Experiência de uso (músicas, chamadas, jogos)"
-    ],
-    "Mouse": [
-        "Unboxing",
-        "Design e ergonomia",
-        "Sensor e DPI",
-        "Conectividade",
-        "Software e personalização",
-        "Experiência em jogos ou uso geral",
-        "Bateria (se for wireless)"
-    ],
-    "Teclado": [
-        "Unboxing",
-        "Layout e tipo de switch",
-        "Iluminação (RGB)",
-        "Conectividade",
-        "Software (se tiver)",
-        "Experiência de digitação ou jogos"
-    ],
-    "Monitor": [
-        "Unboxing e montagem",
-        "Design e conexões",
-        "Tela (resolução, tipo de painel, taxa de atualização)",
-        "Qualidade de imagem (brilho, contraste, cores)",
-        "Uso em jogos / trabalho"
-    ],
-    "Smartphone": [
-        "Unboxing",
-        "Design e tela",
-        "Sistema e desempenho",
-        "Câmeras (teste rápido)",
-        "Bateria e carregamento",
-        "Experiência geral"
-    ],
-    "Notebook": [
-        "Unboxing",
-        "Design e tela",
-        "Teclado, portas e conectividade",
-        "Desempenho e temperatura",
-        "Bateria",
-        "Experiência de uso geral"
-    ],
-    "Smartwatch": [
-        "Unboxing",
-        "Design e conforto",
-        "Tela (tipo, brilho, tamanho)",
-        "Sensores e funcionalidades (batimentos, GPS, etc.)",
-        "Sistema operacional e apps disponíveis",
-        "Bateria e autonomia",
-        "Conectividade (Bluetooth, Wi-Fi)",
-        "Experiência de uso (notificações, esportes, saúde)",
-        "Pontos positivos e negativos"
-    ]
-}
-
 if tipo_video == "Unboxing / Review":
     st.subheader("🧩 Informações sobre o produto")
 
     titulo_video = st.text_input("Título do vídeo")
     nome_produto = st.text_input("Nome do produto")
-    tipo_produto = st.selectbox("Tipo de produto", list(estruturas_por_tipo.keys()))
     valor_compra = st.text_input("Valor da compra")
     onde_comprou = st.text_input("Onde comprou?")
-    data_compra = st.date_input("Data da compra", value=datetime.date.today())
     valeu_a_pena = st.radio("O produto valeu a pena?", ["Sim", "Não", "Em partes"])
 
     pontos_positivos = st.text_area("Pontos positivos")
@@ -88,10 +20,16 @@ if tipo_video == "Unboxing / Review":
     transcricao_youtube = st.text_area("Transcrição de outro vídeo sobre o produto")
     ideias_gerais = st.text_area("Ideias gerais para o vídeo")
 
-    st.markdown("### ✅ Seções que você quer incluir no roteiro")
-    secoes_base = ["Introdução"] + estruturas_por_tipo[tipo_produto] + ["Pontos positivos", "Pontos negativos", "Vale a pena?", "Conclusão com CTA"]
-    secoes_incluidas = [st.checkbox(secao, value=True) for secao in secoes_base]
-    secoes_escolhidas = [secao for secao, incluir in zip(secoes_base, secoes_incluidas) if incluir]
+    # Seções obrigatórias em todo roteiro
+    secoes_escolhidas = [
+        "Introdução",
+        "Unboxing ou o que vem na caixa",
+        "Preço",
+        "Pontos positivos",
+        "Pontos negativos",
+        "Vale a pena?",
+        "Conclusão com CTA"
+    ]
 
     gerar = st.button("📋 Gerar Prompt")
 
@@ -105,10 +43,8 @@ O roteiro deve servir como lembrete dos pontos que o criador de conteúdo deve c
 
 ### Informações:
 - Título do vídeo: {titulo_video}
-- Tipo de produto: {tipo_produto}
 - Valor da compra: {valor_compra}
 - Onde comprou: {onde_comprou}
-- Data da compra: {data_compra}
 - Valeu a pena?: {valeu_a_pena}
 
 ### Pontos positivos:
@@ -161,3 +97,6 @@ Compare dois produtos com base nos roteiros abaixo, criando um novo roteiro de v
 
 Crie um roteiro comparativo para vídeo do YouTube, com linguagem natural, tópicos diretos e lembretes do que o criador deve comentar.
 """
+        st.subheader("🧠 Prompt Gerado")
+        st.code(prompt, language="markdown")
+        st.info("Copie este prompt e cole no ChatGPT para gerar seu roteiro!")
