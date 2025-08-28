@@ -62,10 +62,18 @@ O roteiro deve servir como lembrete dos pontos que o criador de conteúdo deve c
 ### Ideias gerais:
 {ideias_gerais}
 
-### Seções desejadas no roteiro:
+### Seções obrigatórias no roteiro:
 {secoes_texto}
 
-Use linguagem natural, fluida e direta. Cada item deve ser um lembrete claro do que o criador de conteúdo deve falar.
+### Instruções importantes para a IA:
+- Analise todas as informações (título, nome do produto, descrição, transcrição e ideias gerais).  
+- Deduzir automaticamente o tipo de produto (ex: notebook, smartphone, headset, monitor, etc).  
+- Além das seções obrigatórias, adicione tópicos **relevantes e específicos para o tipo de produto**.  
+  - Exemplo: para notebook → falar de bateria, tela, teclado, construção e hardware.  
+  - Exemplo: para headset → falar de conforto, qualidade de som, microfone, cancelamento de ruído.  
+  - Exemplo: para smartphone → falar de câmeras, sistema, desempenho, tela.  
+- Sempre usar linguagem natural, fluida e direta.  
+- Cada item deve ser um lembrete claro do que o criador de conteúdo deve falar.  
 """
 
         st.subheader("🧠 Prompt Gerado")
@@ -95,7 +103,11 @@ Compare dois produtos com base nos roteiros abaixo, criando um novo roteiro de v
 ### Roteiro do Produto 2:
 {produto2}
 
-Crie um roteiro comparativo para vídeo do YouTube, com linguagem natural, tópicos diretos e lembretes do que o criador deve comentar.
+### Instruções importantes para a IA:
+- Analise o contexto e deduza automaticamente os pontos fortes e fracos de cada produto.  
+- Adicione tópicos específicos e relevantes de acordo com o tipo de produto (ex: bateria para notebook, som para headset, câmeras para smartphone).  
+- Estruture a comparação de forma clara, com pontos lado a lado quando possível.  
+- Use linguagem natural, tópicos diretos e lembretes claros do que o criador deve comentar.  
 """
         st.subheader("🧠 Prompt Gerado")
         st.code(prompt, language="markdown")
