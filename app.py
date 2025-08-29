@@ -81,6 +81,7 @@ O roteiro deve servir como lembrete dos pontos que o criador de conteúdo deve c
   - Exemplo: para smartphone → falar de câmeras, sistema, desempenho, tela.  
 - Sempre usar linguagem natural, fluida e direta.  
 - Cada item deve ser um lembrete claro do que o criador de conteúdo deve falar.  
+- Não precisa inserir lembrete de tempo por seção    
 """
 
         model = genai.GenerativeModel("gemini-1.5-flash")
