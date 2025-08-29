@@ -1,10 +1,17 @@
 import streamlit as st
+import google.generativeai as genai
 
-st.title("📝 Gerador de Prompt para Roteiros de Vídeo")
+# Configura chave do Gemini a partir do secrets
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+
+st.title("🎬 Gerador de Roteiros para Vídeos")
 
 # Tipo do vídeo
 tipo_video = st.selectbox("Tipo do vídeo", ["Unboxing / Review", "Comparação de produtos"])
 
+# ------------------------
+# 1. UNBOXING / REVIEW
+# ------------------------
 if tipo_video == "Unboxing / Review":
     st.subheader("🧩 Informações sobre o produto")
 
@@ -31,7 +38,7 @@ if tipo_video == "Unboxing / Review":
         "Conclusão com CTA"
     ]
 
-    gerar = st.button("📋 Gerar Prompt")
+    gerar = st.button("🚀 Gerar Roteiro")
 
     if gerar:
         secoes_texto = "\n".join([f"- {sec}" for sec in secoes_escolhidas])
@@ -76,10 +83,15 @@ O roteiro deve servir como lembrete dos pontos que o criador de conteúdo deve c
 - Cada item deve ser um lembrete claro do que o criador de conteúdo deve falar.  
 """
 
-        st.subheader("🧠 Prompt Gerado")
-        st.code(prompt, language="markdown")
-        st.info("Copie este prompt e cole no ChatGPT para gerar seu roteiro!")
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
 
+        st.subheader("📑 Roteiro Gerado")
+        st.write(response.text)
+
+# ------------------------
+# 2. COMPARAÇÃO DE PRODUTOS
+# ------------------------
 elif tipo_video == "Comparação de produtos":
     st.subheader("🔀 Comparação de Produtos")
 
@@ -88,7 +100,7 @@ elif tipo_video == "Comparação de produtos":
     publico_alvo = st.text_input("Público-alvo")
     objetivo = st.text_input("Objetivo da comparação (ex: descobrir qual é melhor para jogos)")
 
-    gerar_comp = st.button("📋 Gerar Prompt de Comparação")
+    gerar_comp = st.button("🚀 Gerar Roteiro de Comparação")
 
     if gerar_comp:
         prompt = f"""
@@ -109,6 +121,9 @@ Compare dois produtos com base nos roteiros abaixo, criando um novo roteiro de v
 - Estruture a comparação de forma clara, com pontos lado a lado quando possível.  
 - Use linguagem natural, tópicos diretos e lembretes claros do que o criador deve comentar.  
 """
-        st.subheader("🧠 Prompt Gerado")
-        st.code(prompt, language="markdown")
-        st.info("Copie este prompt e cole no ChatGPT para gerar seu roteiro!")
+
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
+
+        st.subheader("📑 Roteiro Gerado")
+        st.write(response.text)
