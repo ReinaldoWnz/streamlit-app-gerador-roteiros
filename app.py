@@ -1,17 +1,25 @@
 import streamlit as st
 import google.generativeai as genai
+import time
 
-# Configura chave do Gemini a partir do secrets
+# Configura chave da API
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
-st.title("🎬 Gerador de Roteiros para Vídeos")
+st.title("📝 Gerador de Roteiros de Vídeo com Gemini")
+
+# Função de "streaming fake"
+def mostrar_com_streaming(texto):
+    placeholder = st.empty()
+    exibido = ""
+    for char in texto:
+        exibido += char
+        placeholder.markdown(exibido)
+        time.sleep(0.01)  # velocidade da "digitação"
+    return exibido
 
 # Tipo do vídeo
 tipo_video = st.selectbox("Tipo do vídeo", ["Unboxing / Review", "Comparação de produtos"])
 
-# ------------------------
-# 1. UNBOXING / REVIEW
-# ------------------------
 if tipo_video == "Unboxing / Review":
     st.subheader("🧩 Informações sobre o produto")
 
@@ -27,7 +35,6 @@ if tipo_video == "Unboxing / Review":
     transcricao_youtube = st.text_area("Transcrição de outro vídeo sobre o produto")
     ideias_gerais = st.text_area("Ideias gerais para o vídeo")
 
-    # Seções obrigatórias em todo roteiro
     secoes_escolhidas = [
         "Introdução",
         "Unboxing ou o que vem na caixa",
@@ -38,7 +45,7 @@ if tipo_video == "Unboxing / Review":
         "Conclusão com CTA"
     ]
 
-    gerar = st.button("🚀 Gerar Roteiro")
+    gerar = st.button("🎬 Gerar Roteiro com Gemini")
 
     if gerar:
         secoes_texto = "\n".join([f"- {sec}" for sec in secoes_escolhidas])
@@ -46,7 +53,8 @@ if tipo_video == "Unboxing / Review":
         prompt = f"""
 Crie um roteiro em formato de **tópicos** para um vídeo de YouTube sobre o produto **"{nome_produto}"**.
 
-O roteiro deve servir como lembrete dos pontos que o criador de conteúdo deve comentar, **sem ser um texto palavra por palavra**.
+O roteiro deve servir como lembrete dos pontos que o criador de conteúdo deve comentar, **sem ser um texto palavra por palavra**.  
+⚠️ Não inclua timings por seção.
 
 ### Informações:
 - Título do vídeo: {titulo_video}
@@ -76,23 +84,20 @@ O roteiro deve servir como lembrete dos pontos que o criador de conteúdo deve c
 - Analise todas as informações (título, nome do produto, descrição, transcrição e ideias gerais).  
 - Deduzir automaticamente o tipo de produto (ex: notebook, smartphone, headset, monitor, etc).  
 - Além das seções obrigatórias, adicione tópicos **relevantes e específicos para o tipo de produto**.  
-  - Exemplo: para notebook → falar de bateria, tela, teclado, construção e hardware.  
-  - Exemplo: para headset → falar de conforto, qualidade de som, microfone, cancelamento de ruído.  
-  - Exemplo: para smartphone → falar de câmeras, sistema, desempenho, tela.  
 - Sempre usar linguagem natural, fluida e direta.  
 - Cada item deve ser um lembrete claro do que o criador de conteúdo deve falar.  
-- Não precisa inserir lembrete de tempo por seção    
 """
 
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(prompt)
 
         st.subheader("📑 Roteiro Gerado")
-        st.write(response.text)
+        roteiro_final = mostrar_com_streaming(response.text)
 
-# ------------------------
-# 2. COMPARAÇÃO DE PRODUTOS
-# ------------------------
+        # Botão para copiar
+        st.text_area("✂️ Copiar Roteiro:", roteiro_final, height=300)
+        st.info("Você pode selecionar e copiar o roteiro acima.")
+
 elif tipo_video == "Comparação de produtos":
     st.subheader("🔀 Comparação de Produtos")
 
@@ -101,11 +106,12 @@ elif tipo_video == "Comparação de produtos":
     publico_alvo = st.text_input("Público-alvo")
     objetivo = st.text_input("Objetivo da comparação (ex: descobrir qual é melhor para jogos)")
 
-    gerar_comp = st.button("🚀 Gerar Roteiro de Comparação")
+    gerar_comp = st.button("🎬 Gerar Roteiro de Comparação com Gemini")
 
     if gerar_comp:
         prompt = f"""
-Compare dois produtos com base nos roteiros abaixo, criando um novo roteiro de vídeo em formato de tópicos.
+Compare dois produtos com base nos roteiros abaixo, criando um novo roteiro de vídeo em formato de tópicos.  
+⚠️ Não inclua timings por seção.
 
 ### Público-alvo: {publico_alvo}
 ### Objetivo da comparação: {objetivo}
@@ -127,4 +133,8 @@ Compare dois produtos com base nos roteiros abaixo, criando um novo roteiro de v
         response = model.generate_content(prompt)
 
         st.subheader("📑 Roteiro Gerado")
-        st.write(response.text)
+        roteiro_final = mostrar_com_streaming(response.text)
+
+        # Botão para copiar
+        st.text_area("✂️ Copiar Roteiro:", roteiro_final, height=300)
+        st.info("Você pode selecionar e copiar o roteiro acima.")
