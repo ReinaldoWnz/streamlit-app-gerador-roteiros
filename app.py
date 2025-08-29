@@ -14,7 +14,7 @@ def mostrar_com_streaming(texto):
     for char in texto:
         exibido += char
         placeholder.markdown(exibido)
-        time.sleep(0.03)  # velocidade da "digitação"
+        time.sleep(0.001)  # velocidade da "digitação"
     return exibido
 
 # Tipo do vídeo
